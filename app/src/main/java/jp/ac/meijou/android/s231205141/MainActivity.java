@@ -1,6 +1,8 @@
 package jp.ac.meijou.android.s231205141;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +17,7 @@ import jp.ac.meijou.android.s231205141.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private PrefDataStore prefDataStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        prefDataStore = PrefDataStore.getInstance(this);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -30,9 +34,53 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        //TextView text = findViewById(R.id.text);
-        binding.text.setText(R.string.text);
-        var bubble = ContextCompat.getDrawable(this, R.drawable.baseline_chat_bubble);
-        binding.imageView2.setImageDrawable(bubble);
+        binding.changebutton.setOnClickListener(view -> {
+            var text = binding.editTextText.getText().toString();
+            binding.text.setText(text);
+        });
+
+        binding.savebutton.setOnClickListener(view -> {
+            var text = binding.editTextText.getText().toString();
+            prefDataStore.setString("name", text);
+        });
+
+        // 文字を消す処理
+        binding.deletebutton.setOnClickListener(view -> {
+            binding.text.setText(null);
+        });
+
+        prefDataStore.getString("name")
+                .ifPresent(name -> binding.text.setText(name));
+
+        /*binding.editTextText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // テキストが更新されたら呼ばれる
+                binding.text.setText(editable.toString());
+            }
+        });*/
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        prefDataStore.getString("name").ifPresent(name -> binding.text.setText(name));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        var text = binding.editTextText.getText().toString();
+        prefDataStore.setString("name", text);
     }
 }
