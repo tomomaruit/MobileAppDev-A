@@ -1,5 +1,6 @@
 package jp.ac.meijou.android.s231205141;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -69,12 +70,32 @@ public class MainActivity extends AppCompatActivity {
                 binding.text.setText(editable.toString());
             }
         });*/
+        // OKボタン
+        binding.buttonOk.setOnClickListener(view -> {
+            var intent = new Intent();
+            intent.putExtra("ret", "OK");
+            setResult(RESULT_OK, intent);
+            finish(); // 画面自体を終了させる処理
+        });
+
+        // Cancelボタン
+        binding.buttonCancel.setOnClickListener(view -> {
+            setResult(RESULT_CANCELED);
+            finish();
+        });
     }
+
+
+
 
     @Override
     protected void onStart() {
         super.onStart();
-        prefDataStore.getString("name").ifPresent(name -> binding.text.setText(name));
+        //prefDataStore.getString("name").ifPresent(name -> binding.text.setText(name));
+        //Intent intent = getIntent();
+        //Bundle bundle = intent.getExtras();
+        String text = getIntent().getStringExtra("name");
+        binding.text.setText(text);
     }
 
     @Override
